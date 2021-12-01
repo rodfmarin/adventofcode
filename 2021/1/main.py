@@ -105,13 +105,9 @@ def do_part_one():
     # if it is, count how many times that happens
 
     increasing = 0
-    decreasing = 0
-
     for i in range(1,len(input)):
         if input[i] > input[i-1]:
             increasing += 1
-        else:
-            decreasing += 1
 
     print(increasing)
 
