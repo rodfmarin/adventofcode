@@ -125,9 +125,6 @@ def filter_array_for_oxygen_reading(array, index=0):
     zeroes = 0
     new_array = []
 
-    # if index > bit_width:
-    #     return
-
     if len(array) == 1:
         return array
 
