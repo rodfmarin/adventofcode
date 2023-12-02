@@ -41,6 +41,7 @@ Determine which games would have been possible if the bag had been loaded with o
 blue cubes. What is the sum of the IDs of those games?
 """
 import re
+from functools import reduce
 from pprint import pprint
 
 
@@ -131,6 +132,30 @@ class GameInspector:
         return True
 
 
+class GameInspector2:
+    """
+    Iterates over a Game's rounds and tries to find the 'highest' r,g,b values and records them
+    """
+
+    def __init__(self, game: Game):
+        self.game = game
+        self.high_r = 0
+        self.high_g = 0
+        self.high_b = 0
+
+    def inspect(self):
+        """
+        iterate over every round and check against the high watermark
+        if a color is higher, then it becomes the high watermark
+        """
+        for r in self.game.rounds:
+            if int(r.red) >= self.high_r:
+                self.high_r = int(r.red)
+            if int(r.green) >= self.high_g:
+                self.high_g = int(r.green)
+            if int(r.blue) >= self.high_b:
+                self.high_b = int(r.blue)
+
 def do_part_one():
     lines = get_input()
     games = []
@@ -144,10 +169,41 @@ def do_part_one():
             valid_games.append(g)
     valid_ids = [i.id for i in valid_games]
     print(valid_ids)
-    print("Total: ", sum(int(i) for i in valid_ids))
+    print("Valid Games summed by ID: ", sum(int(i) for i in valid_ids))
+
 
 def do_part_two():
-    pass
+    """
+    --- Part Two ---
+    The Elf says they've stopped producing snow because they aren't getting any water! He isn't sure why the water
+    stopped; however, he can show you how to get to the water source to check it out for yourself. It's just up ahead!
+
+    As you continue your walk, the Elf poses a second question: in each game you played, what is the fewest number of
+    cubes of each color that could have been in the bag to make the game possible?
+    [truncated...note: what is the minimum amount of cubes necessary to make a game valid]
+    The power of a set of cubes is equal to the numbers of red, green, and blue cubes multiplied together. The power of
+    the minimum set of cubes in game 1 is 48. In games 2-5 it was 12, 1560, 630, and 36, respectively. Adding up these
+    five powers produces the sum 2286.
+
+    For each game, find the minimum set of cubes that must have been present. What is the sum of the power of these
+    sets?
+    """
+    lines = get_input()
+    games = []
+    for line in lines:
+        games.append(GameParser(line).parse())
+
+    minimum_sets = []
+    for g in games:
+        i = GameInspector2(g)
+        i.inspect()
+        minimum_sets.append([i.high_r, i.high_g, i.high_b])
+
+    sum = 0
+    for set in minimum_sets:
+        sum += reduce((lambda x, y: x * y), set)
+    print("Power sum:", sum)
+
 
 if __name__ == "__main__":
     do_part_one()
