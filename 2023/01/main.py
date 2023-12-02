@@ -32,6 +32,8 @@ In this example, the calibration values of these four lines are 12, 38, 15, and 
 
 Consider your entire calibration document. What is the sum of all of the calibration values?
 """
+from pprint import pprint
+
 
 def get_input():
     input = []
@@ -73,11 +75,106 @@ def do_part_one():
     print(total)
 
 
+Numbers = {
+    "zero": 0,
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9
+}
+
+
+def find_all_substrings(string, substring):
+    """Get the indicies of all occurences of substring in string"""
+    indices = []
+    i = 0
+    while i < len(string):
+        j = string.find(substring, i)
+        if j == -1:
+            break
+        indices.append(j)
+        i = j + len(substring)
+    return indices
+
+
+def find_indices_of_all_num_occurrences(string: str, substring: str):
+    """
+    for each number in the numbers list
+    if it occurs in the string
+        keep searching, increasing the index to search after the length of the string until you can't find it
+        the first hit should be recorded
+        the last hit should be recorded
+
+    """
+    return find_all_substrings(string, substring)
+
 def do_part_two():
     """
-    Todo
+    Your calculation isn't quite right. It looks like some of the digits are actually spelled out with letters:
+    one, two, three, four, five, six, seven, eight, and nine also count as valid "digits".
+
+    Equipped with this new information, you now need to find the real first and last digit on each line. For example:
+
+    two1nine
+    eightwothree
+    abcone2threexyz
+    xtwone3four
+    4nineeightseven2
+    zoneight234
+    7pqrstsixteen
+    In this example, the calibration values are 29, 83, 13, 24, 42, 14, and 76. Adding these together produces 281.
+
+
     """
-    pass
+
+    # You almost have to find all the indexes of each occurrence of digits and all words
+    # Then compare who is the most forward and most aft
+    # Those are the digits to sum
+
+    lines = get_input()
+    ranking = []
+
+    for line in lines:
+        lowest_seen = {"num": "", "index": 1000000000000}
+        highest_seen = {"num": "", "index": 0}
+        data = {}
+        for num in Numbers:
+            indices = find_indices_of_all_num_occurrences(line, num)
+            indices_numerical = find_indices_of_all_num_occurrences(line, str(Numbers[num]))
+            all_indices = indices + indices_numerical
+            if all_indices:
+                for i in all_indices:
+                    if i <= lowest_seen["index"]:
+                        lowest_seen["num"] = num
+                        lowest_seen["index"] = i
+                    if i >= highest_seen["index"]:
+                        highest_seen["num"] = num
+                        highest_seen["index"] = i
+                data["line"] = line.strip()
+                data[num] = all_indices
+                data["highest"] = highest_seen
+                data["lowest"] = lowest_seen
+        ranking.append(data)
+
+    pprint(ranking)
+
+    total = 0
+    # for line in ranking:
+    for line in ranking:
+        lowest = Numbers[line["lowest"]["num"]]
+        highest = Numbers[line["highest"]["num"]]
+        digits = int(str(lowest)+str(highest))
+        print(digits)
+        total += digits
+
+    print(total)
+
+
 
 
 if __name__ == "__main__":
