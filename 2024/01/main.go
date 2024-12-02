@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"math"
 	"os"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -93,6 +94,25 @@ func (lc *ListCollection) GetTotalDistance() int {
 	return int(math.Abs(float64(totalDistance)))
 }
 
+func (lc *ListCollection) GetSimilarityScore() int {
+	similarityScore := 0
+	occurrences := lc.countAllOccurrences(lc.RightList)
+	for i := 0; i < len(lc.LeftList); i++ {
+		if slices.Contains(lc.RightList, lc.LeftList[i]) {
+			similarityScore += lc.LeftList[i] * occurrences[lc.LeftList[i]]
+		}
+	}
+	return similarityScore
+}
+
+func (lc *ListCollection) countAllOccurrences(slice []int) map[int]int {
+	counts := make(map[int]int)
+	for _, value := range slice {
+		counts[value]++
+	}
+	return counts
+}
+
 func (lc *ListCollection) SortLists() {
 	sort.Ints(lc.LeftList)
 	sort.Ints(lc.RightList)
@@ -151,5 +171,6 @@ func main() {
 	lc.SortLists()
 
 	println(lc.GetTotalDistance())
+	println(lc.GetSimilarityScore())
 
 }
