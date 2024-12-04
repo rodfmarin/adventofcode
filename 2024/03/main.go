@@ -82,6 +82,34 @@ func ParseMemoryForMulInstructions(input string) [][]string {
 	return matches
 }
 
+// ParseMemoryForConditionalInstructions Parse the memory for conditional instructions
+func ParseMemoryForConditionalInstructions(input string) int {
+	// Parse the input string and extract all the valid conditional instructions
+
+	enabled := true
+	sum := 0
+
+	mulPattern := "mul\\((\\d+),(\\d+)\\)"
+	doPattern := "do\\(\\)"
+	dontPattern := "don't\\(\\)"
+	pattern := mulPattern + "|" + doPattern + "|" + dontPattern
+	re := regexp.MustCompile(pattern)
+	matches := re.FindAllStringSubmatch(input, -1)
+
+	for _, match := range matches {
+		if match[0] == "do()" {
+			enabled = true
+		} else if match[0] == "don't()" {
+			enabled = false
+		} else if enabled {
+			sum += CalculateMultiplication(ParseOperandsFromMulInstructions([][]string{match}))
+			fmt.Println(match)
+		}
+	}
+
+	return sum
+}
+
 // ParseOperandsFromMulInstructions Parse the operands from the mul instructions
 func ParseOperandsFromMulInstructions(instructions [][]string) [][]int {
 	var operands [][]int
@@ -115,7 +143,7 @@ func CalculateMultiplication(operands [][]int) int {
 
 func main() {
 	input := readFileAsString("input.txt")
-	mulInstructions := ParseMemoryForMulInstructions(input)
-	operands := ParseOperandsFromMulInstructions(mulInstructions)
-	fmt.Print(CalculateMultiplication(operands))
+
+	sum := ParseMemoryForConditionalInstructions(input)
+	fmt.Print(sum)
 }
