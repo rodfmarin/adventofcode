@@ -65,6 +65,7 @@ func (pm *PuzzleMap) SetObstacle(x, y int) {
 }
 
 // Load the input.txt and parse the map into the PuzzleMap structure.
+// Set the maximum width and height of the map based on the input.
 func (pm *PuzzleMap) LoadFromFile(filename string) error {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -72,10 +73,25 @@ func (pm *PuzzleMap) LoadFromFile(filename string) error {
 	}
 	defer file.Close()
 
+	// Read all lines first
+	lines := []string{}
 	scanner := bufio.NewScanner(file)
-	y := 0
 	for scanner.Scan() {
-		line := scanner.Text()
+		lines = append(lines, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("error reading file: %w", err)
+	}
+
+	if len(lines) == 0 {
+		return fmt.Errorf("input file is empty")
+	}
+
+	pm.Width = len(lines[0])
+	pm.Height = len(lines)
+
+	// Now parse the map
+	for y, line := range lines {
 		for x, char := range line {
 			switch char {
 			case '.':
@@ -86,12 +102,8 @@ func (pm *PuzzleMap) LoadFromFile(filename string) error {
 				pm.SetGuard(x, y)
 			}
 		}
-		y++
 	}
 
-	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("error reading file: %w", err)
-	}
 	return nil
 }
 
@@ -197,7 +209,7 @@ func compactTravelled(points []Point) []Point {
 
 func doPartOne() {
 	// Load the input.txt file from disk and parse the map
-	puzzleMap := NewPuzzleMap(130, 130)
+	puzzleMap := NewPuzzleMap(0, 0)
 	err := puzzleMap.LoadFromFile("input.txt")
 	if err != nil {
 		fmt.Println("Error loading puzzle map:", err)
